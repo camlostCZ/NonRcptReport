@@ -5,6 +5,7 @@
 # Example: NonRcptReport.py "201710*" nonrcpt-report.csv
 
 import argparse
+import sys
 import traceback
 
 ##
@@ -41,30 +42,34 @@ def handle_exception(err, msg="ERROR"):
     print("  code:     ", err_info[0].line)
 
 def parse_args():
+    '''
+    Parse command line arguments.
+
+    Returns:
+        Object as returned by parse_args()
+    '''
     parser = argparse.ArgumentParser()
-    parser.add_argument("filter", default="*", help="Mask used to filter files")
+    parser.add_argument("-f", "--filter", default="*", help="Mask used to filter files")
     parser.add_argument("-o", "--output", help="Path to an output file")
-    result = parser.parse_args()
+    return parser.parse_args()
 
 def main(args):
     '''
     Main function.
 
     Args:
-        args (str[]): List of cmdline arguments
+        args: Object containinf cmdline arguments as properties
 
     Returns:
         none
     '''
 
+    print(args)
     raise Exception('Not implemented yet')
 
 
 if __name__ == "__main__":
-    import sys
     try:
-        #main(sys.argv)
-        args = parse_args()
-        print(args)
+        main(parse_args())
     except BaseException:
         handle_exception(sys.exc_info(), msg="UNHANDLED EXCEPTION")
