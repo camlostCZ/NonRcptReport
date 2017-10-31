@@ -4,6 +4,24 @@
 # Usage:   NonRcptReport.py <file_mask> <CSV_output_file>
 # Example: NonRcptReport.py "201710*" nonrcpt-report.csv
 
+import argparse
+import traceback
+
+##
+# Constants
+PATTERN_DNS_ERROR = "Host or domain name not found"
+DSN_PATTERNS = [
+    PATTERN_DNS_ERROR,
+    "address rejected",
+    "does not exist",
+    "no mailbox here",
+    "no such user",
+    "recipient rejected",
+    "user invalid",
+    "user unknown"
+]
+
+LOG_MASK = "/var/log/mail/mail.log-"
 
 def handle_exception(err, msg="ERROR"):
     '''
@@ -22,6 +40,11 @@ def handle_exception(err, msg="ERROR"):
     print("  function: ", err_info[0].name)
     print("  code:     ", err_info[0].line)
 
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filter", default="*", help="Mask used to filter files")
+    parser.add_argument("-o", "--output", help="Path to an output file")
+    result = parser.parse_args()
 
 def main(args):
     '''
@@ -40,6 +63,8 @@ def main(args):
 if __name__ == "__main__":
     import sys
     try:
-        main(sys.argv)
+        #main(sys.argv)
+        args = parse_args()
+        print(args)
     except BaseException:
         handle_exception(sys.exc_info(), msg="UNHANDLED EXCEPTION")
