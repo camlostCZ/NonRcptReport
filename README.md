@@ -10,3 +10,6 @@ looks up typical SMTP server responses and collects e-mail addresses together wi
 some additional data into a CSV file.
 
 That file can be used further to for example clear invalid e-mail addresses from CRM.
+
+Performance
+Approx. 30 MB gzipped (~ 250 MB uncompressed) file in under 3 minutes on an older notebook.
