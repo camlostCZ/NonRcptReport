@@ -78,7 +78,7 @@ def is_email_domain(domain_name):
 	return answer_count > 0
 
 
-def is_ndr_line(line):
+def process_line(line):
     result = False
     regex_pat = "^[^\]]+\]:\s([^:]+):\sto=<([^>]*)>,\srelay=([^,]+),\sdelay=([^,]+),\sdelays=([^,]+),\sdsn=([^,]+),\sstatus=(.*)$"
     match = re.match(regex_pat,line)
@@ -111,7 +111,7 @@ def parse_args():
 def process_file(filename, output_file):
     fp = gzip.open(filename, "rt") if re.search("\.gz$", filename) else open(filename, "r")
     for line in fp:
-        if is_ndr_line(line):
+        if process_line(line):
             #TODO Check for existing domain
             pass
         pass
