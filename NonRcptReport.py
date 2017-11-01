@@ -91,7 +91,7 @@ def process_line(line):
             is_nonexisting = is_nonexisting or re.search(pat, status)
             if is_nonexisting and re.search(PATTERN_DNS_ERROR, status):
                 domain = re.sub(r"^[^@]+@", "", rcpt).strip()
-                is_nonexisting = not (len(domain) > 0 and not is_email_domain(domain))
+                is_nonexisting = (len(domain) > 0 and not is_email_domain(domain))
             if is_nonexisting:
                 result = (rcpt, dsn, pat, relay, status)
                 break  # No need to check for other pattern matches
@@ -121,7 +121,7 @@ def process_file(filename, file_out):
         data = process_line(line)
         if data:
             rcpt, dsn, pattern, relay, status = data
-            print('"{0}","{1}","{2}","{3}","{4}"'.format(rcpt, dsn, pattern, relay, status), file=file_out)
+            print('"{0}","{1}"'.format(rcpt, pattern), file=file_out)
     fp.close()
 
 
