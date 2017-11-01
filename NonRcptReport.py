@@ -28,7 +28,7 @@ DSN_PATTERNS = [
 ]
 
 #LOG_MASK = "/var/log/mail/mail.log-"
-LOG_MASK = "C:/Users/sol60527/Downloads/!/log/mg01/"
+LOG_MASK = "C:/Users/sol60527/Downloads/!/log/m01/"
 
 
 def handle_exception(err, msg="ERROR"):
@@ -79,20 +79,27 @@ def is_email_domain(domain_name):
 
 
 def process_line(line):
-    result = False
-    regex_pat = "^[^\]]+\]:\s([^:]+):\sto=<([^>]*)>,\srelay=([^,]+),\sdelay=([^,]+),\sdelays=([^,]+),\sdsn=([^,]+),\sstatus=(.*)$"
+
+    def check_dsn_patterns(m):
+        result = None
+        is_nonexisting = False
+        rcpt = m.group(2)
+        relay = m.group(3)
+        dsn = m.group(6)
+        status = m.group(7)
+        for pat in DSN_PATTERNS:
+            is_nonexisting = is_nonexisting or re.search(pat, status)
+            if is_nonexisting and re.search(PATTERN_DNS_ERROR, status):
+                domain = re.sub(r"^[^@]+@", "", rcpt).strip()
+                is_nonexisting = not (len(domain) > 0 and not is_email_domain(domain))
+            if is_nonexisting:
+                result = (rcpt, dsn, pat, relay, status)
+                break  # No need to check for other pattern matches
+        return result
+
+    regex_pat = "^[^\]]+\]:\s([^:]+):\sto=<([^>]*)>,\srelay=([^,]+),\sdelay=([^,]+),\sdelays=([^,]+),\sdsn=(5[^,]+),\sstatus=(.*)$"
     match = re.match(regex_pat,line)
-    if match:
-        dsn = match.group(6)
-        relay = match.group(3)
-        if dsn[0] == "5":
-            status = match.group(7)
-            for pat in DSN_PATTERNS:
-                result = result or re.search(pat, status)
-                if result and re.search(PATTERN_DNS_ERROR, status):
-                    #TODO Validate domain name
-                    pass
-    return result
+    return check_dsn_patterns(match) if match else None
 
 
 def parse_args():
@@ -108,13 +115,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def process_file(filename, output_file):
+def process_file(filename, file_out):
     fp = gzip.open(filename, "rt") if re.search("\.gz$", filename) else open(filename, "r")
     for line in fp:
-        if process_line(line):
-            #TODO Check for existing domain
-            pass
-        pass
+        data = process_line(line)
+        if data:
+            rcpt, dsn, pattern, relay, status = data
+            print('"{0}","{1}","{2}","{3}","{4}"'.format(rcpt, dsn, pattern, relay, status), file=file_out)
     fp.close()
 
 
@@ -134,7 +141,9 @@ def main(args):
     lst_files = glob.iglob(search_filter)
     for file in lst_files:
         print("Processing file ", os.path.basename(file))
-        process_file(file, args.output)
+        f_out = open(args.output, "w") if args.output != None else sys.stdout
+        process_file(file, f_out)
+        f_out.close()
     print("Done.")
 
 
