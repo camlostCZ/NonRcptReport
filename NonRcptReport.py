@@ -139,11 +139,11 @@ def main(args):
     #print(args)
     search_filter = LOG_MASK + args.filter
     lst_files = glob.iglob(search_filter)
+    f_out = open(args.output, "w") if args.output != None else sys.stdout
     for file in lst_files:
         print("Processing file ", os.path.basename(file))
-        f_out = open(args.output, "w") if args.output != None else sys.stdout
         process_file(file, f_out)
-        f_out.close()
+    f_out.close()
     print("Done.")
 
 
