@@ -1,17 +1,10 @@
+#!/usr/bin/env python3
+
 ##
 # NonRcptReport.py
 #
 # Usage:   NonRcptReport.py <file_mask> <CSV_output_file>
 # Example: NonRcptReport.py "201710*" nonrcpt-report.csv
-
-import argparse
-import dns.resolver
-import glob
-import gzip
-import os.path
-import re
-import sys
-import traceback
 
 ##
 # Constants
@@ -29,6 +22,16 @@ DSN_PATTERNS = [
 
 #LOG_MASK = "/var/log/mail/mail.log-"
 LOG_MASK = "C:/Users/sol60527/Downloads/!/log/m01/"
+
+
+import argparse
+import dns.resolver
+import glob
+import gzip
+import os.path
+import re
+import sys
+import traceback
 
 
 def handle_exception(err, msg="ERROR"):
@@ -79,6 +82,16 @@ def is_email_domain(domain_name):
 
 
 def process_line(line):
+    '''
+    Check if the line contains info about non-existing recipient.
+
+    Args:
+        line (str): Postfix log line.
+
+    Returns:
+        Tuple of recipient address, DSN code, matching pattern, realy host and status if
+        the recipient doesn't exist or None otherwise.
+    '''
 
     def check_dsn_patterns(m):
         result = None
@@ -98,7 +111,7 @@ def process_line(line):
         return result
 
     regex_pat = "^[^\]]+\]:\s([^:]+):\sto=<([^>]*)>,\srelay=([^,]+),\sdelay=([^,]+),\sdelays=([^,]+),\sdsn=(5[^,]+),\sstatus=(.*)$"
-    match = re.match(regex_pat,line)
+    match = re.match(regex_pat, line)
     return check_dsn_patterns(match) if match else None
 
 
