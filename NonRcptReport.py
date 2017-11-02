@@ -20,6 +20,8 @@ DSN_PATTERNS = [
     "user unknown"
 ]
 
+CSV_SEPARATOR = ";"
+
 #LOG_MASK = "/var/log/mail/mail.log-"
 LOG_MASK = "C:/Users/sol60527/Downloads/!/log/m01/"
 
@@ -141,7 +143,7 @@ def process_file(filename, file_out):
         data = process_line(line)
         if data:
             rcpt, dsn, pattern, relay, status = data
-            print('"{0}","{1}"'.format(rcpt, pattern), file=file_out)
+            print("{0}{1}{2}".format(rcpt, CSV_SEPARATOR, pattern), file=file_out)
     fp.close()
 
 
