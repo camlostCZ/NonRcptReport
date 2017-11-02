@@ -116,6 +116,13 @@ def parse_args():
 
 
 def process_file(filename, file_out):
+    '''
+    Process single file.
+
+    Args:
+        filename (str): Name of the file
+        file_out (file object): Output file
+    '''
     fp = gzip.open(filename, "rt") if re.search("\.gz$", filename) else open(filename, "r")
     for line in fp:
         data = process_line(line)
@@ -150,5 +157,7 @@ def main(args):
 if __name__ == "__main__":
     try:
         main(parse_args())
+    except SystemExit:
+        pass
     except BaseException:
         handle_exception(sys.exc_info(), msg="UNHANDLED EXCEPTION")
