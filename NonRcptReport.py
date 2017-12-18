@@ -3,8 +3,8 @@
 ##
 # NonRcptReport.py
 #
-# Usage:   NonRcptReport.py <file_mask> <CSV_output_file>
-# Example: NonRcptReport.py "201710*" nonrcpt-report.csv
+# Usage:   NonRcptReport.py -f <file_mask> [-o <CSV_output_file>]
+# Example: NonRcptReport.py -f "201710*" -o nonrcpt-report.csv
 
 ##
 # Constants
@@ -22,8 +22,8 @@ DSN_PATTERNS = [
 
 CSV_SEPARATOR = ";"
 
-#LOG_MASK = "/var/log/mail/mail.log-"
-LOG_MASK = "C:/Users/sol60527/Downloads/!/log/m01/"
+LOG_MASK = "/var/log/mail/mail.log-"
+#LOG_MASK = "C:/Users/sol60527/Downloads/!/log/m01/mail.log-"
 
 
 import argparse
@@ -139,12 +139,18 @@ def process_file(filename, file_out):
         file_out (file object): Output file
     '''
     fp = gzip.open(filename, "rt") if re.search("\.gz$", filename) else open(filename, "r")
+    d = {}
     for line in fp:
         data = process_line(line)
         if data:
             rcpt, dsn, pattern, relay, status = data
-            print("{0}{1}{2}".format(rcpt, CSV_SEPARATOR, pattern), file=file_out)
+            d[rcpt] = data
     fp.close()
+
+    # Write collected data to output
+    for k in d.keys():
+        rcpt, dsn, pattern, relay, status = d[k]
+        print("{0}{1}{2}".format(k, CSV_SEPARATOR, pattern), file=file_out)
 
 
 def main(args):
